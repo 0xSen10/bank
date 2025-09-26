@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity  ^0.8.0;
 
+interface IBank {
+    function deposit() external payable;
+    function withdraw(uint amount) external;
+    function getContractBalance() external view returns (uint);
+    function getBalance(address user) external view returns (uint);
+}
+
 contract bank{
     mapping (address => uint) public balance;
 
@@ -33,14 +40,13 @@ contract bank{
         deposit();
     } 
 
-    function deposit() public payable {
+    function deposit() public payable virtual {
         require(msg.value > 0,"Deposit amount must be greater than 0");
         balance[msg.sender] += msg.value;
-        _updataTopDepositors(msg.sender,balance[msg.sender]);
     }
 
     function withdraw(uint amount) external  onlyOwner{
-        require(amount < address(this).balance,"Iicient contract balance");
+        require(amount <= address(this).balance,"Iicient contract balance");
         payable(owner).transfer(amount);
     } 
 
@@ -51,55 +57,44 @@ contract bank{
     function getBalance(address user) external view returns (uint) {
         return balance[user];
     }
+}
 
-    function getTopDepositors() external view returns (Depositor[3] memory) {
-        return topDepositors;
+contract BigBank is bank {
+
+    uint256 public constant MIN_DEPOSIT = 0.001 ether;
+
+    modifier minDeposit() {
+        require(msg.value >= MIN_DEPOSIT, "Deposit must be at least 0.001 ether");
+        _;
     }
 
-    function _updataTopDepositors(address depositor,uint newAmount) private {
-        if (newAmount < topDepositors[2].amount) {
-            return; 
-        }
-        int256 existingIndex = -1;
-        for (uint256 i = 0; i < 3; i++) {
-            if (topDepositors[i].depositorAddress == depositor) {
-                existingIndex = int256(i);
-                break;
-            }
-        }
-        
-        // 如果用户已经在排行榜中，更新金额并重新排序
-        if (existingIndex >= 0) {
-            topDepositors[uint256(existingIndex)].amount = newAmount;
-            _sortTopDepositors();
-        } else {
-            // 新用户，找到插入位置
-            for (uint256 i = 0; i < 3; i++) {
-                if (newAmount > topDepositors[i].amount) {
-                    // 将新用户插入到当前位置，后面的依次后移
-                    _shiftDepositors(i);
-                    topDepositors[i] = Depositor(depositor, newAmount);
-                    break;
-                }
-            }
-        }
+    function deposit() public payable override minDeposit() {
+        super.deposit();
     }
 
-    function _sortTopDepositors() private {
-        for (uint i = 0; i < 2 ;i ++) {
-            for (uint j = 0; j<2 ;j++) {
-                if (topDepositors[j].amount < topDepositors[j + 1].amount) {
-                    Depositor memory temp = topDepositors[j];
-                    topDepositors[j] = topDepositors[j + 1];
-                    topDepositors[j + 1] = temp;
-                }
-            }
-        }
+    function  transferAdmin(address newAdmin) external onlyOwner() {
+        require(newAdmin != address(0), "Invalid new admin address");
+        require(newAdmin != owner, "New admin is already the current admin");
+        owner = newAdmin;
+    }
+}
+
+contract Admin{
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
     }
 
-    function _shiftDepositors(uint256 startIndex) private {
-        for (uint256 i = 2; i > startIndex; i--) {
-            topDepositors[i] = topDepositors[i - 1];
-        }
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only admin can call this function");
+        _;
+    }
+
+    function adminWithdraw(IBank bank) external onlyOwner() {
+        require(address(bank) != address(0), "Invalid bank address"); 
+        require(bank.getContractBalance() > 0, "Bank has no balance to withdraw");
+        uint bankBalance = bank.getContractBalance();
+        bank.withdraw(bankBalance);
     }
 }
