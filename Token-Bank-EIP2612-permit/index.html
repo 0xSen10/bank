@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Bank 前端界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .wallet-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .connect-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .wallet-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .balances-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .balance-label {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .balance-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .balance-unit {
+            font-size: 1em;
+            opacity: 0.8;
+        }
+
+        .actions-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .action-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .deposit-btn {
+            background: linear-gradient(135deg, #4cd964 0%, #5ac8fa 100%);
+            color: white;
+        }
+
+        .withdraw-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+            color: white;
+        }
+
+        .signature-btn {
+            background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+            color: white;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .deposit-options {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            margin-bottom: 30px;
+        }
+
+        .deposit-options h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4em;
+        }
+
+        .option-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .option-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .option-description {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
+        .status.success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .token-info {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 1em;
+        }
+
+        @media (max-width: 768px) {
+            .balances-section,
+            .actions-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .option-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Token Bank</h1>
+        <div class="subtitle">支持离线签名授权的去中心化存款平台</div>
+        
+        <div class="token-info" id="tokenInfo">
+            正在加载代币信息...
+        </div>
+        
+        <div class="wallet-section">
+            <button id="connectButton" class="connect-btn">🔗 连接钱包</button>
+            <div class="wallet-info">
+                连接地址: <span id="userAddress">未连接</span>
+            </div>
+        </div>
+        
+        <div class="balances-section">
+            <div class="balance-card">
+                <div class="balance-label">💰 代币余额</div>
+                <div class="balance-amount" id="tokenBalance">0</div>
+                <div class="balance-unit">SERC20</div>
+            </div>
+            
+            <div class="balance-card">
+                <div class="balance-label">🏦 存款余额</div>
+                <div class="balance-amount" id="bankBalance">0</div>
+                <div class="balance-unit">在 Token Bank 中</div>
+            </div>
+        </div>
+
+        <!-- 新增：存款方式选择 -->
+        <div class="deposit-options">
+            <h3>📥 选择存款方式</h3>
+            <div class="option-buttons">
+                <button id="traditionalDepositBtn" class="option-btn active">传统存款</button>
+                <button id="signatureDepositBtn" class="option-btn">签名存款 (Permit)</button>
+            </div>
+            <div class="option-description" id="optionDescription">
+                传统存款方式：先授权再存款，需要两笔交易
+            </div>
+        </div>
+        
+        <div class="actions-section">
+            <div class="action-card">
+                <h3 id="depositTitle">📥 传统存款</h3>
+                <div class="input-group">
+                    <input type="number" id="depositAmount" placeholder="输入存款金额" step="0.001" min="0">
+                </div>
+                <button id="depositButton" class="action-btn deposit-btn">确认存款</button>
+                <div id="depositDescription" style="font-size: 0.9em; color: #666; text-align: center;">
+                    需要先授权再存款（2笔交易）
+                </div>
+            </div>
+            
+            <div class="action-card">
+                <h3>📤 取款</h3>
+                <div class="input-group">
+                    <input type="number" id="withdrawAmount" placeholder="输入取款金额" step="0.001" min="0">
+                </div>
+                <button id="withdrawButton" class="action-btn withdraw-btn">确认取款</button>
+            </div>
+        </div>
+        
+        <div id="status" class="status"></div>
+    </div>
+
+    <!-- 先导入 tokenBankUI.js -->
+   <script type="module">
+    console.log('1. 开始执行脚本');
+
+    let TokenBankUI;
+    window.tokenBankUIInstance = null;
+    let currentDepositMethod = 'traditional'; // 默认传统存款
+
+    // 动态导入 tokenBankUI.js
+    import('./tokenBankUI.js')
+        .then(module => {
+            console.log('2. TokenBankUI 模块加载成功');
+            TokenBankUI = module.TokenBankUI;
+            window.TokenBankUI = TokenBankUI;
+            initializeApp();
+        })
+        .catch(error => {
+            console.error('3. 加载 tokenBankUI.js 失败:', error);
+        });
+
+    function initializeApp() {
+        console.log('4. 初始化应用');
+        
+        // 设置存款方式切换
+        setupDepositOptions();
+        
+        // 使用事件委托处理点击
+        document.addEventListener('click', function(event) {
+            if (event.target.id === 'connectButton' || event.target.closest('#connectButton')) {
+                console.log('5. 连接钱包按钮被点击');
+                handleConnectWallet();
+            }
+            
+            if (event.target.id === 'depositButton' || event.target.closest('#depositButton')) {
+                console.log('6. 存款按钮被点击，当前方式:', currentDepositMethod);
+                handleDeposit();
+            }
+            
+            if (event.target.id === 'withdrawButton' || event.target.closest('#withdrawButton')) {
+                console.log('7. 取款按钮被点击');
+                handleWithdraw();
+            }
+        });
+
+        console.log('8. 应用初始化完成');
+        autoConnect();
+    }
+
+    function setupDepositOptions() {
+        console.log('9. 设置存款方式选项');
+        
+        const traditionalBtn = document.getElementById('traditionalDepositBtn');
+        const signatureBtn = document.getElementById('signatureDepositBtn');
+        const depositTitle = document.getElementById('depositTitle');
+        const depositButton = document.getElementById('depositButton');
+        const depositDescription = document.getElementById('depositDescription');
+        const optionDescription = document.getElementById('optionDescription');
+
+        console.log('10. 存款方式按钮:', {
+            traditionalBtn: !!traditionalBtn,
+            signatureBtn: !!signatureBtn,
+            depositTitle: !!depositTitle,
+            depositButton: !!depositButton
+        });
+
+        if (traditionalBtn && signatureBtn) {
+            // 传统存款按钮
+            traditionalBtn.addEventListener('click', function() {
+                console.log('11. 点击传统存款');
+                currentDepositMethod = 'traditional';
+                traditionalBtn.classList.add('active');
+                signatureBtn.classList.remove('active');
+                
+                if (depositTitle) depositTitle.textContent = '📥 传统存款';
+                if (depositButton) depositButton.textContent = '确认存款';
+                if (depositDescription) depositDescription.textContent = '需要先授权再存款（2笔交易）';
+                if (optionDescription) optionDescription.textContent = '传统存款方式：先授权再存款，需要两笔交易';
+            });
+
+            // 签名存款按钮
+            signatureBtn.addEventListener('click', function() {
+                console.log('12. 点击签名存款');
+                currentDepositMethod = 'signature';
+                signatureBtn.classList.add('active');
+                traditionalBtn.classList.remove('active');
+                
+                if (depositTitle) depositTitle.textContent = '📝 签名存款';
+                if (depositButton) depositButton.textContent = '签名并存款';
+                if (depositDescription) depositDescription.textContent = '使用离线签名，只需一笔交易';
+                if (optionDescription) optionDescription.textContent = '签名存款方式：使用 EIP-712 离线签名，只需一笔交易完成授权和存款';
+            });
+
+            console.log('13. 存款方式事件监听器已添加');
+        } else {
+            console.error('14. 错误: 找不到存款方式按钮');
+        }
+    }
+
+    async function handleDeposit() {
+        console.log('15. 处理存款，方式:', currentDepositMethod);
+        
+        const amountInput = document.getElementById('depositAmount');
+        const amount = amountInput ? amountInput.value : '';
+        
+        console.log('16. 存款金额:', amount);
+        
+        if (!amount || parseFloat(amount) <= 0) {
+            showStatus('请输入有效的存款金额', 'error');
+            return;
+        }
+
+        if (!window.tokenBankUIInstance) {
+            showStatus('请先连接钱包', 'error');
+            return;
+        }
+
+        try {
+            if (currentDepositMethod === 'traditional') {
+                console.log('17. 执行传统存款');
+                await window.tokenBankUIInstance.depositWithApproval(amount);
+                showStatus('存款成功！', 'success');
+            } else {
+                console.log('18. 执行签名存款');
+                await window.tokenBankUIInstance.depositWithSignature(amount);
+                showStatus('签名存款成功！', 'success');
+            }
+            
+            await updateBalances();
+            if (amountInput) amountInput.value = '';
+            
+        } catch (error) {
+            console.error('19. 存款失败:', error);
+            showStatus(`存款失败: ${error.message}`, 'error');
+        }
+    }
+
+    async function handleWithdraw() {
+        console.log('20. 处理取款');
+        
+        const amountInput = document.getElementById('withdrawAmount');
+        const amount = amountInput ? amountInput.value : '';
+        
+        if (!amount || parseFloat(amount) <= 0) {
+            showStatus('请输入有效的取款金额', 'error');
+            return;
+        }
+
+        if (!window.tokenBankUIInstance) {
+            showStatus('请先连接钱包', 'error');
+            return;
+        }
+
+        try {
+            await window.tokenBankUIInstance.withdraw(amount);
+            showStatus('取款成功！', 'success');
+            
+            await updateBalances();
+            if (amountInput) amountInput.value = '';
+            
+        } catch (error) {
+            console.error('取款失败:', error);
+            showStatus(`取款失败: ${error.message}`, 'error');
+        }
+    }
+
+    // 其他函数保持不变（handleConnectWallet, updateBalances, autoConnect, showStatus 等）
+    async function handleConnectWallet() {
+        console.log('21. 处理钱包连接');
+        
+        try {
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('22. 检测到 MetaMask');
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                console.log('23. 获取到账户:', accounts);
+                
+                if (accounts.length > 0 && TokenBankUI) {
+                    window.tokenBankUIInstance = new TokenBankUI(window.ethereum);
+                    console.log('24. TokenBankUI 实例创建完成');
+                    
+                    const userAddress = accounts[0];
+                    document.getElementById('userAddress').textContent = 
+                        `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
+                    
+                    showStatus('钱包连接成功！', 'success');
+                    console.log('25. 钱包连接成功');
+                    
+                    await updateBalances();
+                }
+            } else {
+                showStatus('请安装 MetaMask', 'error');
+            }
+        } catch (error) {
+            console.error('26. 连接失败:', error);
+            showStatus(`连接失败: ${error.message}`, 'error');
+        }
+    }
+
+    async function updateBalances() {
+        console.log('27. 开始更新余额');
+        // 余额更新逻辑...
+    }
+
+    async function autoConnect() {
+        console.log('28. 尝试自动连接');
+        // 自动连接逻辑...
+    }
+
+    function showStatus(message, type = 'info') {
+        const statusElement = document.getElementById('status');
+        if (statusElement) {
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+            statusElement.style.display = 'block';
+        }
+    }
+
+    console.log('29. 脚本加载完成');
+</script>
+</body>
+</html>
