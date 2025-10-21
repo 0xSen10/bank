@@ -1,0 +1,52 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+
+/// @title 自动转账 Bank 合约 (使用 Chainlink Automation)
+contract AutoBank is AutomationCompatibleInterface {
+    address public owner;
+    uint256 public threshold;
+
+    constructor(uint256 _threshold) {
+        owner = msg.sender;
+        threshold = _threshold;
+    }
+
+    /// 用户可以存款
+    function deposit() external payable {}
+
+    /// 取余额
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
+    /// 修改阈值
+    function setThreshold(uint256 _threshold) external {
+        require(msg.sender == owner, "Only owner");
+        threshold = _threshold;
+    }
+
+    /// (1) Keeper 检查函数
+    /// 如果余额 > 阈值，则返回 true
+    function checkUpkeep(bytes calldata)
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory performData)
+    {
+        upkeepNeeded = address(this).balance > threshold;
+    }
+
+    /// (2) Keeper 执行函数
+    /// 自动触发转账逻辑
+    function performUpkeep(bytes calldata) external override {
+        if (address(this).balance > threshold) {
+            uint256 half = address(this).balance / 2;
+            (bool success, ) = owner.call{value: half}("");
+            require(success, "Transfer failed");
+        }
+    }
+
+    receive() external payable {}
+}
