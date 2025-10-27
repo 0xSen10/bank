@@ -1,0 +1,45 @@
+Ran 7 tests for test/DeflationaryTokenTest.t.sol:DeflationaryTokenTest
+[PASS] test_GonsBalanceUnchanged() (gas: 64062)
+Logs:
+  Initial gons - User1: 11579208923731610000000000000000000000000 User2: 5789604461865805000000000000000000000000
+  After rebase gons - User1: 11579208923731610000000000000000000000000 User2: 5789604461865805000000000000000000000000
+
+[PASS] test_InitialState() (gas: 58727)
+Logs:
+  Owner balance: 85000000000000082409404315
+  User1 balance: 10000000000000000000000000
+  User2 balance: 5000000000000000000000000
+
+[PASS] test_MultipleRebases() (gas: 109716)
+Logs:
+  Year 0 - Initial total supply: 100000000000000000000000000
+  Year 1 - Total supply: 99000000000000000000000000
+  Year 2 - Total supply: 98010000000000000000000000
+  Year 3 - Total supply: 97029900000000000000000000
+  Year 4 - Total supply: 96059601000000000000000000
+  Year 5 - Total supply: 95099004990000000000000000
+  Expected after 5 years: 95099004990000000000000000
+  Actual after 5 years: 95099004990000000000000000
+
+[PASS] test_OrchestratorFunctions() (gas: 31415)
+[PASS] test_RebaseDeflation() (gas: 76931)
+Logs:
+  === Before rebase ===
+  Total supply: 100000000000000000000000000
+  User1 balance: 10000000000000000000000000
+  User2 balance: 5000000000000000000000000
+  === After rebase ===
+  Total supply: 99000000000000000000000000
+  User1 balance: 9899999999999999401513519
+  User2 balance: 4949999999999999700756759
+
+[PASS] test_RebaseTooEarly() (gas: 22036)
+[PASS] test_TransferThenRebase() (gas: 85031)
+Logs:
+  After transfer - User1: 9000000000000000000000000 User2: 6000000000000000000000000
+  After rebase - Expected User1: 8910000000000000000000000 Actual: 8909999999999999461362167
+  After rebase - Expected User2: 5940000000000000000000000 Actual: 5939999999999999640908111
+
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 1.24ms (1.99ms CPU time)
+
+Ran 1 test suite in 13.69ms (1.24ms CPU time): 7 tests passed, 0 failed, 0 skipped (7 total tests)
